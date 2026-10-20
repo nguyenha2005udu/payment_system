@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "PTIT Lab 3 Kết nối service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Chạy lỗi bằng biến môi trường ở terminal. Request 05 cần SV1 còn nợ ít nhất 25 triệu. Hai request 09 chạy tuần tự với ngân hàng bình thường."
+  },
+  "variable": [
+    {
+      "key": "feeUrl",
+      "value": "http://localhost:4001"
+    },
+    {
+      "key": "bankUrl",
+      "value": "http://localhost:4002"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Công nợ SV1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{feeUrl}}/students/1/fees"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('GET fees 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Công nợ SV2",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{feeUrl}}/students/2/fees"
+      }
+    },
+    {
+      "name": "03 Công nợ SV3",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{feeUrl}}/students/3/fees"
+      }
+    },
+    {
+      "name": "04 Thanh toán 100000",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{feeUrl}}/students/1/payments",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"amount\": 100000}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.test('Có paymentId', () => pm.expect(b.paymentId).to.be.a('string'));",
+              "pm.test('HTTP tương ứng status', () => {",
+              " const expected = {201:'PAID',400:'FAILED',402:'FAILED',503:'FAILED',504:'PENDING'};",
+              " pm.expect(b.status).to.eql(expected[pm.response.code]);",
+              "});",
+              "if (pm.response.code !== 201) pm.test('Lỗi có error', () => pm.expect(b.error).to.be.a('string'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Vượt hạn mức 25 triệu SV1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{feeUrl}}/students/1/payments",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"amount\": 25000000}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('402 FAILED với dữ liệu mới', () => { pm.response.to.have.status(402); pm.expect(pm.response.json().status).to.eql('FAILED'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Số tiền âm",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{feeUrl}}/students/1/payments",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"amount\": -1}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 SV2 không có công nợ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{feeUrl}}/students/2/payments",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"amount\": 1000}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Thống kê ngân hàng",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{bankUrl}}/stats"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Không trừ trùng', () => pm.expect(pm.response.json().duplicates).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.1 Idempotency cùng khóa lần 1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "postman-demo-key"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{bankUrl}}/charges",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"reference\": \"postman-demo\", \"amount\": 1000}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('firstChargeId', pm.response.json().chargeId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.2 Idempotency cùng khóa lần 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "postman-demo-key"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{bankUrl}}/charges",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"reference\": \"postman-demo\", \"amount\": 1000}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "pm.test('Trả lại cùng giao dịch', () => pm.expect(pm.response.json().chargeId).to.eql(pm.collectionVariables.get('firstChargeId')));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

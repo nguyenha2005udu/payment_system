@@ -1,0 +1,147 @@
+{
+  "started": "2026-10-20T02:59:44.704Z",
+  "node": "v26.8.1",
+  "platform": "darwin",
+  "faultSampling": "Math.random, independent per request; results vary between runs",
+  "passed": true,
+  "rows": [
+    {
+      "scenario": "1 bank down then recovery",
+      "mode": "baseline",
+      "downCode": 503,
+      "downMs": 53.78,
+      "readMs": 1.77,
+      "recoveredCode": 201
+    },
+    {
+      "scenario": "1 BANK_URL port 4999",
+      "mode": "baseline",
+      "code": 503,
+      "ms": 16.54
+    },
+    {
+      "scenario": "2 slow bank",
+      "mode": "baseline",
+      "code": 201,
+      "status": "PAID",
+      "ms": 5034.98,
+      "concurrentPaid": 20,
+      "concurrentPending": 0,
+      "concurrentMaxMs": 5029.5,
+      "readMs": 3.65
+    },
+    {
+      "scenario": "3 keep alive",
+      "mode": "baseline",
+      "paid": 200,
+      "totalMs": 99,
+      "connectionsDelta": 200,
+      "afterIdlePaid": 5
+    },
+    {
+      "scenario": "4 DROP_RATE",
+      "mode": "baseline",
+      "paid": 37,
+      "pending": 23,
+      "failed": 0,
+      "charges": 60,
+      "requests": 60,
+      "duplicates": 0,
+      "debt": 49963000,
+      "maxMs": 58
+    },
+    {
+      "scenario": "4 FAIL_RATE",
+      "mode": "baseline",
+      "paid": 35,
+      "pending": 0,
+      "failed": 25,
+      "charges": 35,
+      "requests": 60,
+      "duplicates": 0,
+      "debt": 49965000,
+      "maxMs": 59.36
+    },
+    {
+      "scenario": "4 bank rejection",
+      "mode": "baseline",
+      "code": 402,
+      "status": "FAILED",
+      "bankRequests": 1
+    },
+    {
+      "scenario": "extra validation and reservation",
+      "mode": "baseline",
+      "passed": true
+    },
+    {
+      "scenario": "1 bank down then recovery",
+      "mode": "fixed",
+      "downCode": 503,
+      "downMs": 15.51,
+      "readMs": 1.63,
+      "recoveredCode": 201
+    },
+    {
+      "scenario": "1 BANK_URL port 4999",
+      "mode": "fixed",
+      "code": 503,
+      "ms": 14.92
+    },
+    {
+      "scenario": "2 slow bank",
+      "mode": "fixed",
+      "code": 504,
+      "status": "PENDING",
+      "ms": 4021.81,
+      "concurrentPaid": 0,
+      "concurrentPending": 20,
+      "concurrentMaxMs": 4018.21,
+      "readMs": 4.25
+    },
+    {
+      "scenario": "3 keep alive",
+      "mode": "fixed",
+      "paid": 200,
+      "totalMs": 84.3,
+      "connectionsDelta": 10,
+      "afterIdlePaid": 5
+    },
+    {
+      "scenario": "4 DROP_RATE",
+      "mode": "fixed",
+      "paid": 60,
+      "pending": 0,
+      "failed": 0,
+      "charges": 60,
+      "requests": 76,
+      "duplicates": 0,
+      "debt": 49940000,
+      "maxMs": 58.89
+    },
+    {
+      "scenario": "4 FAIL_RATE",
+      "mode": "fixed",
+      "paid": 60,
+      "pending": 0,
+      "failed": 0,
+      "charges": 60,
+      "requests": 80,
+      "duplicates": 0,
+      "debt": 49940000,
+      "maxMs": 362.3
+    },
+    {
+      "scenario": "4 bank rejection",
+      "mode": "fixed",
+      "code": 402,
+      "status": "FAILED",
+      "bankRequests": 1
+    },
+    {
+      "scenario": "extra validation and reservation",
+      "mode": "fixed",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"name":"ptit-lab3-service-connections","version":"1.0.0","private":true,"engines":{"node":">=18"},"scripts":{"bank":"node src/bank.js","fee":"node src/fee.js","test":"node scripts/verify.js","bench":"node scripts/bench.js"},"dependencies":{"express":"4.21.2"}}
